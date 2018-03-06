@@ -45,7 +45,7 @@ for runs in range (0, 5):
 
 	# Check if the network can recall the patterns
 	print("")
-	for i in range(1, len(input_patterns)):
+	for i in range(0, len(input_patterns)):
 		output_pattern = np.dot(weights, input_patterns[i])
 		#output_pattern = np.dot(weights, distorted_input_patterns[i])
 		input_patterns[i] = sgn(output_pattern)
