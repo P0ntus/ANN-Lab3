@@ -55,27 +55,62 @@ print("WEIGHTS")
 print(weights)
 print("")
 
-# Distorted pattern initation
+# Distorted pattern initiation
 x1d = [1, -1, 1, -1, 1, -1, -1, 1]
 x2d = [1, 1, -1, -1, -1, 1, -1, -1]
 x3d = [1, 1, 1, -1, 1, 1, -1, 1]
 
-# Apply update rule
-input_pattern = x2d
+'''
+# Search all possible input patterns for attractors
+all_possible_input_patterns = []
+get_all_possible_inputs(all_possible_input_patterns, [], 8, 0)
+attractors = []
+
+for input in all_possible_input_patterns:
+	old_input_pattern = input
+	input_pattern = sgn(np.dot(weights, old_input_pattern))
+	count = 1
+	while (count < 100): #(count_errors(input_pattern, old_input_pattern) != 0)
+		old_input_pattern = input_pattern
+		input_pattern = sgn(np.dot(weights, old_input_pattern))
+		count = count + 1
+		if(count_errors(input_pattern, old_input_pattern) == 0):
+			attractors.append(input_pattern)
+			break
+			
+attractors = remove_duplicates(attractors)
+print("ATTRACTORS: ", len(attractors))
+print(attractors)
+'''
+
+# Test single pattern
+old_input_pattern = x1d
 print("ORIGINAL INPUT PATTERN")
+print(old_input_pattern)
+input_pattern = sgn(np.dot(weights, old_input_pattern))
+count = 1
+print("")
+print("Count: ", count)
+print("CURRENT PATTERN")
 print(input_pattern)
-iterations = 0
-while (iterations < 4):
-	input_pattern = sgn(np.dot(weights, input_pattern))
-	iterations = iterations + 1
+print("DIFFERENCE TO ORIGINAL PATTERNS")
+print(count_errors(input_pattern, memory_patterns[0]))
+print(count_errors(input_pattern, memory_patterns[1]))
+print(count_errors(input_pattern, memory_patterns[2]))
+while ((count_errors(input_pattern, old_input_pattern) != 0)):
+	old_input_pattern = input_pattern
+	input_pattern = sgn(np.dot(weights, old_input_pattern))
+	count = count + 1
 	print("")
-	print("Iterations: ", iterations)
+	print("Count: ", count)
 	print("CURRENT PATTERN")
 	print(input_pattern)
 	print("DIFFERENCE TO ORIGINAL PATTERNS")
 	print(count_errors(input_pattern, memory_patterns[0]))
 	print(count_errors(input_pattern, memory_patterns[1]))
 	print(count_errors(input_pattern, memory_patterns[2]))
+
+
 
 
 	
