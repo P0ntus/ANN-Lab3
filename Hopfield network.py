@@ -49,8 +49,8 @@ print("")
 # Weight initiation
 weights = np.matmul(memory_patterns.T, memory_patterns)
 # Remove self connections
-for i in range (0, len(weights)):
-	weights[i][i] = 0
+#for i in range (0, len(weights)):
+	#weights[i][i] = 0
 print("WEIGHTS")
 print(weights)
 print("")
@@ -60,7 +60,7 @@ x1d = [1, -1, 1, -1, 1, -1, -1, 1]
 x2d = [1, 1, -1, -1, -1, 1, -1, -1]
 x3d = [1, 1, 1, -1, 1, 1, -1, 1]
 
-'''
+
 # Search all possible input patterns for attractors
 all_possible_input_patterns = []
 get_all_possible_inputs(all_possible_input_patterns, [], 8, 0)
@@ -81,12 +81,17 @@ for input in all_possible_input_patterns:
 attractors = remove_duplicates(attractors)
 print("ATTRACTORS: ", len(attractors))
 print(attractors)
-'''
 
+
+'''
 # Test single pattern
-old_input_pattern = x1d
+old_input_pattern = np.copy(x3d)
 print("ORIGINAL INPUT PATTERN")
 print(old_input_pattern)
+print("DIFFERENCE TO ORIGINAL PATTERNS")
+print(count_errors(old_input_pattern, memory_patterns[0]))
+print(count_errors(old_input_pattern, memory_patterns[1]))
+print(count_errors(old_input_pattern, memory_patterns[2]))
 input_pattern = sgn(np.dot(weights, old_input_pattern))
 count = 1
 print("")
@@ -97,8 +102,9 @@ print("DIFFERENCE TO ORIGINAL PATTERNS")
 print(count_errors(input_pattern, memory_patterns[0]))
 print(count_errors(input_pattern, memory_patterns[1]))
 print(count_errors(input_pattern, memory_patterns[2]))
-while ((count_errors(input_pattern, old_input_pattern) != 0)):
-	old_input_pattern = input_pattern
+#while ((count_errors(input_pattern, old_input_pattern) != 0)):
+while (count < 5):
+	old_input_pattern = np.copy(input_pattern)
 	input_pattern = sgn(np.dot(weights, old_input_pattern))
 	count = count + 1
 	print("")
@@ -109,8 +115,6 @@ while ((count_errors(input_pattern, old_input_pattern) != 0)):
 	print(count_errors(input_pattern, memory_patterns[0]))
 	print(count_errors(input_pattern, memory_patterns[1]))
 	print(count_errors(input_pattern, memory_patterns[2]))
-
-
-
+'''
 
 	
