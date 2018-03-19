@@ -86,6 +86,14 @@ def simple_even_add_noise(pattern, size_of_noise):
 			pattern[row][column] = pattern[row][column] * -1
 	return pattern
 
+def another_simple_add_noise(pattern, size_of_noise):
+	for row in range(np.size(pattern, 0)):
+		for i in range(0, size_of_noise):
+			pattern[row][i] = pattern[row][i] * -1
+	return pattern
+a = np.array([(1,1,1,1,1), (1,1,1,1,1), (1,1,1,1,1)])
+print(another_simple_add_noise(a, 4))
+
 # Generate 300 random patterns
 pattern_length = 100
 patterns_to_generate = 300
@@ -95,16 +103,17 @@ while (np.size(random_patterns, 0) < patterns_to_generate): # If there is only o
 	if (np.size(random_patterns, 0) == patterns_to_generate):
 		random_patterns = remove_duplicates(random_patterns)
 	
-
+'''
+#Without noise
 # Add one pattern to be memorized at a time and check how many of the stored patterns are stable
 stability = []
 for p in range (1, np.size(random_patterns, 0)):
 	# Weight initiation
-	sub_pattern = random_patterns[:p,:]
+	sub_pattern = np.copy(random_patterns[:p,:])
 	weights = np.matmul(sub_pattern.T, sub_pattern)
 	# Remove self connections
-	#for i in range (0, np.size(weights, 0)):
-		#weights[i][i] = 0
+	for i in range (0, np.size(weights, 0)):
+		weights[i][i] = 0
 
 	#sub_pattern = simple_even_add_noise(sub_pattern, 5)
 	# Check number of stable patterns
@@ -117,26 +126,67 @@ for p in range (1, np.size(random_patterns, 0)):
 	stability.append(number_of_stable_patterns)
 	print("Iteration: ", p, "stable patterns: ", number_of_stable_patterns)
 
-#pat = add_noise(random_patterns[0], 10)
-#print(count_errors(pat, random_patterns[0]))
+
 ax = plt.gca()
 ax.plot(stability)
-#ax.legend(['y = Number of stable patterns'])
+plt.title('Number of stable patterns for network with biased patterns without self connections and without noise')
 plt.ylabel('Number of stable patterns')
 plt.xlabel('Patterns memorized')
 plt.show()
 
+for i in range (1, 299):
+	print(stability[i], i)
+	stability[i] = float(stability[i])/(i + 1)
+ax = plt.gca()
+ax.plot(stability)
+plt.title('Ratio of successfully memorized patterns for self connected network without noise')
+ax.legend(['Self connected without noise'])
+plt.ylabel('Ratio of patterns actually memorized')
+plt.xlabel('Patterns attempted to be memorized')
+plt.show()
+'''
 
 '''
-count = 0
-runs = 100
-for i in range (0, runs):
-	print(np.random.normal(0.5, 5, 1))
-	print(sgn(np.random.normal(0.5, 5, 1)))
-	if(sgn(np.random.normal(0.5, 1, 1)) >= 0):
-		count = count + 1
+#With noise
+noisy_patterns = np.copy(random_patterns)
+noisy_patterns = simple_even_add_noise(noisy_patterns, 5)
+convergences = []
+for p in range (1, np.size(noisy_patterns, 0)):
+	print(p)
+	sub_pattern = np.copy(random_patterns[:p,:])
+	weights = np.matmul(sub_pattern.T, sub_pattern)
+	# Remove self connections
+	for i in range (0, np.size(weights, 0)):
+		weights[i][i] = 0
+	#noisy_sub_pattern = np.copy(noisy_patterns[:p,:])
+	convergence = 0
+	for i in range (0, p):
+		old_input_pattern = noisy_patterns[i]
+		input_pattern = sgn(np.dot(weights, old_input_pattern))
+		count = 0
+		while (count < 25):
+			old_input_pattern = np.copy(input_pattern)
+			input_pattern = sgn(np.dot(weights, old_input_pattern))
+			if(count_errors(input_pattern, old_input_pattern) == 0):
+				if(count_errors(input_pattern, random_patterns[i]) == 0):
+					convergence = convergence + 1
+				break
+			count = count + 1
+	convergences.append(convergence)
 
-print("1's:", count, "2's:", runs - count)
-'''
+ax = plt.gca()
+ax.plot(convergences)
+plt.title('Number of stable patterns for network with bias without self connections with noise')
+plt.ylabel('Number of stable patterns')
+plt.xlabel('Patterns attempted to be memorized')
+plt.show()
 
-	
+for i in range (0, 299):
+	convergences[i] = float(convergences[i])/(i + 1)
+ax = plt.gca()
+plt.title('Ratio of successfully memorized patterns for self connected network with noise')
+ax.plot(convergences)
+plt.ylabel('Ratio of patterns actually memorized')
+plt.xlabel('Patterns attempted to be memorized')
+plt.show()
+'''	

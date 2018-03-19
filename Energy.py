@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 import argparse
 
 def energy(weights, input_pattern):
-  size = range(0, len(input_pattern))
-  return -reduce(add, [weights[i][j] * input_pattern[i] * input_pattern[j] for i in size for j in size])
+  #size = range(0, len(input_pattern))
+  #return -reduce(add, [weights[i][j] * input_pattern[i] * input_pattern[j] for i in size for j in size])
+  return -weights.dot(input_pattern).dot(input_pattern.T)
 
 def plot_energy(energy_list):
   plt.plot(energy_list)
@@ -107,7 +108,7 @@ def main():
   parser.add_argument('-p', '--part', type=int, required=True,
                      help='which part of the assignment to run')
   args = parser.parse_args()
-  
+
   # Memory pattern initiation
   memory_patterns = []
   memory_patterns.append([-1, -1, 1, -1, 1, -1, -1, 1])            #x1

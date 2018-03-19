@@ -60,7 +60,7 @@ x1d = [1, -1, 1, -1, 1, -1, -1, 1]
 x2d = [1, 1, -1, -1, -1, 1, -1, -1]
 x3d = [1, 1, 1, -1, 1, 1, -1, 1]
 
-
+'''
 # Search all possible input patterns for attractors
 all_possible_input_patterns = []
 get_all_possible_inputs(all_possible_input_patterns, [], 8, 0)
@@ -81,9 +81,9 @@ for input in all_possible_input_patterns:
 attractors = remove_duplicates(attractors)
 print("ATTRACTORS: ", len(attractors))
 print(attractors)
-
-
 '''
+
+
 # Test single pattern
 old_input_pattern = np.copy(x3d)
 print("ORIGINAL INPUT PATTERN")
@@ -115,6 +115,5 @@ while (count < 5):
 	print(count_errors(input_pattern, memory_patterns[0]))
 	print(count_errors(input_pattern, memory_patterns[1]))
 	print(count_errors(input_pattern, memory_patterns[2]))
-'''
 
 	
