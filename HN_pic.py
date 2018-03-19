@@ -16,6 +16,15 @@ def sgn(x):
 		x = -1
 	return(x)
 
+# To add noise knowing a parameter p (percentage of noise)
+def add_noise( pattern, p ) :
+	order = range( 0, len( pattern ))
+	shuffle( order )
+	part = int(len(order) * (p/100))
+	for i in order[:part] :
+		pattern *= -1
+	return pattern
+
 # To update the weights
 # As the matrix is symetric with 0 in the diagonal, we will only fill one triangle
 def weights_update_origin(weights, patterns) :
