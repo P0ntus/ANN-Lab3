@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
+from random import shuffle
 import os
 import math
 import numpy as np
@@ -48,7 +49,10 @@ def patterns_update( weights, patterns ):
 
 # To generate the next pattern from the weights
 def get_pattern( weights, pattern ):
-	for l in range( 0, len( pattern )) :
+	order = range( 0, len( pattern ))
+	# Randomize the entry sequence, the result differs completely !!
+	shuffle( order )
+	for l in order :
 		result = 0
 		for m in range( 0, len( weights )) :
 			result += weights[l][m] * pattern[ m ]
@@ -77,7 +81,7 @@ number_nodes = 1024
 
 # Figure constants
 rows = 3
-columns = 2
+columns = 3
 
 # pict = [ [ [ int( raw_pict[j + i * pict_def + k * number_patterns] ) for j in range(0, pict_def) ] for i in range(0, pict_def) ] for k in range(0, number_patterns) ]
 pict = [ [ int( raw_pict[j  + i * number_nodes] ) for j in range(0, number_nodes) ] for i in range(0, number_patterns) ]
@@ -105,19 +109,27 @@ pict = np.array( pict )
 weights = weights_update( pict, 3 )
 
 
+"""
+# diagonal of 0
+print( weights.shape )
+for i in range (0, len(weights)):
+	weights[i][i] = 0
+"""
+
 # First CALL
-print( pict.shape )
-for i in range( 0, len(pict) ) :
-	pict[i] = get_pattern(weights, pict[i])
+for e in range( 0 , epochs ) :
+	for i in range( 0, len(pict) ) :
+		pict[i] = get_pattern(weights, pict[i])
 
 
 # TESTING
-# Here we verify if the patterns are stable :
+"""
+# Pattern stability : Here we verify if the patterns are stable :
 if np.array_equal(save_pict[:3], pict[:3]) == True :  # test if same shape, same elements values, only for the 3 first
 	print( "The patterns are stable !" )
 else :
 	print( "UNSTABLE" )
-
+"""
 
 plot_save_pict = []
 plot_pict = []
@@ -134,6 +146,8 @@ for i in range( 0, len(pict) ) :
 # Plot print : 
 fig = plt.figure()
 
+"""
+# Stable table
 for i in range( 1 , 4 ) : # (rows*columns//2) + 1
 	fig.add_subplot(rows, columns, i*2 - 1)
 	plt.imshow(plot_save_pict[i - 1])
@@ -142,6 +156,34 @@ for i in range( 1 , 4 ) :
 	fig.add_subplot(rows, columns, i*2)
 	# print( save_pict[i] )
 	plt.imshow( plot_pict[i - 1] )
+"""
+
+# Degraded patterns
+fig.add_subplot(rows, columns,1)
+plt.imshow(plot_save_pict[0])
+fig.add_subplot(rows, columns,2)
+plt.imshow(plot_save_pict[9])
+fig.add_subplot(rows, columns,3)
+plt.imshow( plot_pict[9] )
+
+fig.add_subplot(rows, columns,4)
+plt.imshow(plot_save_pict[1])
+fig.add_subplot(rows, columns,5)
+plt.imshow(plot_save_pict[10])
+fig.add_subplot(rows, columns,6)
+plt.imshow( plot_pict[10] )
+
+
+fig.add_subplot(rows, columns,7)
+plt.imshow(plot_save_pict[2])
+fig.add_subplot(rows, columns,8)
+plt.imshow(plot_save_pict[10])
+fig.add_subplot(rows, columns,9)
+plt.imshow( plot_pict[10] )
+
+
+
+
 
 # print( pict[0] )
 # print( weights )
