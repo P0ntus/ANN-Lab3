@@ -1,9 +1,21 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+from random import shuffle
+import os
+import math
 
 np.set_printoptions(threshold=np.nan) #Always print the whole matrix
 random.seed()
+
+# To add noise knowing a parameter p (percentage of noise)
+def add_noise( pattern, p ) :
+	order = list(range(len(pattern)))
+	shuffle( order )
+	part = int(len(order) * (p/100))
+	for i in order[:part] :
+		pattern[i] *= -1
+	return pattern
 
 # Count how many bits differ between pattern x and y
 def count_errors(x, y):
@@ -52,26 +64,6 @@ def remove_duplicates(input):
 				return input
 	return input
 	
-# Adds noise to pattern
-def add_noise(pattern, size_of_noise):
-	if(size_of_noise > np.size(pattern, 0)):
-		size_of_noise = np.size(pattern, 0) * np.size(pattern, 1)
-	
-	#print(np.size(pattern, 0) - 1)
-	#print(np.size(pattern, 1) - 1)
-	noise_loc = [random.randint(0, np.size(pattern, 0) - 1), random.randint(0, np.size(pattern, 1) - 1)]
-	if (size_of_noise == 1): #|| np.size(pattern, 0) - 1 == 1
-		pattern[noise_loc[0]][noise_loc[1]] = pattern[noise_loc[0]][noise_loc[1]] * -1
-	else:
-		noise_loc = np.vstack([noise_loc, [random.randint(0, np.size(pattern, 0) - 1), random.randint(0, np.size(pattern, 1) - 1)]])
-		while(np.size(noise_loc, 0) < size_of_noise):
-			noise_loc = np.vstack([noise_loc, [random.randint(0, np.size(pattern, 0) - 1), random.randint(0, np.size(pattern, 1) - 1)]])
-			noise_loc = remove_duplicates(noise_loc)
-			print(np.size(noise_loc, 0))
-		for i in range(0, np.size(noise_loc, 0)):
-			pattern[noise_loc[i][0]][noise_loc[i][1]] = pattern[noise_loc[i][0]][noise_loc[i][1]] * -1
-	return pattern
-	
 def simple_add_noise(pattern, size_of_noise):
 	for i in range(0, size_of_noise):
 		row = random.randint(0, np.size(pattern, 0) - 1)
@@ -92,70 +84,69 @@ def another_simple_add_noise(pattern, size_of_noise):
 			pattern[row][i] = pattern[row][i] * -1
 	return pattern
 
+#____________________________________________________
+# We format the given data from animals.dat
+os.chdir( os.path.dirname(os.path.abspath(__file__)) )
+
+# Open data files
+pict_f = open("pict.dat", "r")
+pict_a = pict_f.read()
+pict_f.close()
+
+raw_pict = pict_a.split(",")
+
+#print("RAW DATA LENGTH")
+#print( len(raw_pict) )
+
+# Some Constants
+epochs = 10
+pict_def = 32
+number_patterns = 11
+number_nodes = 300
+
+# Figure constants
+rows = 3
+columns = 3
+
+# pict = [ [ [ int( raw_pict[j + i * pict_def + k * number_patterns] ) for j in range(0, pict_def) ] for i in range(0, pict_def) ] for k in range(0, number_patterns) ]
+pict = [ [ int( raw_pict[j  + i * number_nodes] ) for j in range(0, number_nodes) ] for i in range(0, number_patterns) ]
+#____________________________________________________
+
+# TO TEST RANDOM PATTERNS
 # Generate 300 random patterns
 pattern_length = 100
 patterns_to_generate = 300
+
 random_patterns = generate_random_pattern(pattern_length) # Needs to be instantiated with a pattern of same length as other random patterns so that vstack won't complain about dimensions
+random_patterns = np.vstack([random_patterns, generate_random_pattern(pattern_length)])
 while (np.size(random_patterns, 0) < patterns_to_generate): # If there is only one row in random_patterns this will instead use the size of the columns in that row
 	random_patterns = np.vstack([random_patterns, generate_random_pattern(pattern_length)])
 	if (np.size(random_patterns, 0) == patterns_to_generate):
 		random_patterns = remove_duplicates(random_patterns)
-	
+		
+noisy_patterns = np.copy(random_patterns)
+for i in range(0, patterns_to_generate):
+	noisy_patterns[i] = add_noise(noisy_patterns[i], 5)
+
+
 '''
-#Without noise
-# Add one pattern to be memorized at a time and check how many of the stored patterns are stable
-stability = []
-for p in range (1, np.size(random_patterns, 0)):
-	# Weight initiation
+#TO TEST PICS
+random_patterns = np.array(pict)
+#With noise
+print(len(random_patterns))
+noisy_patterns = np.copy(random_patterns)
+for i in range(0, 11):
+	noisy_patterns[i] = add_noise(noisy_patterns[i], 0)
+'''
+
+convergences = []
+for p in range (1, np.size(noisy_patterns, 0)):
 	sub_pattern = np.copy(random_patterns[:p,:])
 	weights = np.matmul(sub_pattern.T, sub_pattern)
 	# Remove self connections
 	for i in range (0, np.size(weights, 0)):
 		weights[i][i] = 0
-
-	#sub_pattern = simple_even_add_noise(sub_pattern, 5)
-	# Check number of stable patterns
-	number_of_stable_patterns = 0
-	for i in range (0, np.size(sub_pattern, 0)):
-		pattern = sgn(np.dot(weights, sub_pattern[i]))
-		if(count_errors(pattern, random_patterns[i]) == 0):
-			number_of_stable_patterns = number_of_stable_patterns + 1
-
-	stability.append(number_of_stable_patterns)
-	print("Iteration: ", p, "stable patterns: ", number_of_stable_patterns)
-
-
-ax = plt.gca()
-ax.plot(stability)
-plt.title('Number of stable patterns for network with biased patterns without self connections and without noise')
-plt.ylabel('Number of stable patterns')
-plt.xlabel('Patterns memorized')
-plt.show()
-
-for i in range (1, 299):
-	print(stability[i], i)
-	stability[i] = float(stability[i])/(i + 1)
-ax = plt.gca()
-ax.plot(stability)
-plt.title('Ratio of successfully memorized patterns for self connected network without noise')
-ax.legend(['Self connected without noise'])
-plt.ylabel('Ratio of patterns actually memorized')
-plt.xlabel('Patterns attempted to be memorized')
-plt.show()
-'''
-
-
-#With noise
-noisy_patterns = np.copy(random_patterns)
-noisy_patterns = simple_even_add_noise(noisy_patterns, 5)
-convergences = []
-for p in range (1, np.size(noisy_patterns, 0)):
-	print(p)
-	sub_pattern = np.copy(random_patterns[:p,:])
-	weights = np.matmul(sub_pattern.T, sub_pattern)
-	# Remove self connections
-	#for i in range (0, np.size(weights, 0)):
-		#weights[i][i] = 0
+	#noisy_sub_pattern = np.copy(noisy_patterns[:p,:])
 	convergence = 0
 	for i in range (0, p):
 		old_input_pattern = noisy_patterns[i]
@@ -170,13 +161,20 @@ for p in range (1, np.size(noisy_patterns, 0)):
 				break
 			count = count + 1
 	convergences.append(convergence)
+	print("Iteration: ", p, "converging patterns: ", convergence)
+
+'''
+for i in range(0, 5):
+	for j in range(0, 5):
+		print("I:", i, "J:", j, "DIFFERENCE:", count_errors(random_patterns[i], random_patterns[j]))
+'''
 
 ax = plt.gca()
 ax.plot(convergences)
 plt.ylabel('Number of stable patterns')
 plt.xlabel('Patterns attempted to be memorized')
 plt.show()
-
+'''
 for i in range (0, 299):
 	convergences[i] = float(convergences[i])/(i + 1)
 ax = plt.gca()
@@ -184,3 +182,4 @@ ax.plot(convergences)
 plt.ylabel('Ratio of patterns actually memorized')
 plt.xlabel('Patterns attempted to be memorized')
 plt.show()
+'''
