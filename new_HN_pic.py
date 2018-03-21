@@ -57,7 +57,11 @@ def patterns_update( weights, patterns ):
 	return patterns
 
 # To generate the next pattern from the weights
-def get_pattern( weights, pattern ):
+def get_pattern( weights, pattern, epoch, fig ):
+
+	screen = 0
+	pattern_num = 1
+
 	order = range( 0, len( pattern ))
 	# Randomize the entry sequence, the result differs completely !!
 	shuffle( order )
@@ -66,6 +70,27 @@ def get_pattern( weights, pattern ):
 		for m in range( 0, len( weights )) :
 			result += weights[l][m] * pattern[ m ]
 		pattern[l] = sgn( result )
+		screen += 1
+
+		print( screen )
+
+		if screen >= 100 and pattern_num <=10 and epoch < 2 :
+			screen = 0
+			# The following code is not beautiful, but it works :p
+			plot_pict = []
+
+			# Plot format
+
+			for i in range( 0, len(pict) ) :
+				plot_pict.append( [ [ int( pattern[j  + k * pict_def] ) for j in range(0, pict_def) ] for k in range(0, pict_def) ] )
+			
+
+			# We add a new plot :
+			fig.add_subplot(4, 5, pattern_num + 10 * epoch)
+			plt.imshow( plot_pict[10] )
+
+			pattern_num += 1
+			
 	return pattern
 	
 
@@ -83,7 +108,7 @@ raw_pict = pict_a.split(",")
 #print( len(raw_pict) )
 
 # Some Constants
-epochs = 10
+epochs = 3
 pict_def = 32
 number_patterns = 11
 number_nodes = 1024
@@ -125,10 +150,13 @@ for i in range (0, len(weights)):
 	weights[i][i] = 0
 """
 
+# Plot print : 
+fig = plt.figure()
+
 # First CALL
 for e in range( 0 , epochs ) :
-	for i in range( 0, len(pict) ) :
-		pict[i] = get_pattern(weights, pict[i])
+	#for i in range( 0, len(pict) ) :
+	pict[10] = get_pattern(weights, pict[10], e, fig)
 
 
 # TESTING
@@ -152,8 +180,7 @@ for i in range( 0, len(pict) ) :
 
 
 
-# Plot print : 
-fig = plt.figure()
+
 
 """
 # Stable table
@@ -168,6 +195,8 @@ for i in range( 1 , 4 ) :
 """
 
 # Degraded patterns
+
+"""
 fig.add_subplot(rows, columns,1)
 plt.imshow(plot_save_pict[0])
 fig.add_subplot(rows, columns,2)
@@ -189,8 +218,7 @@ fig.add_subplot(rows, columns,8)
 plt.imshow(plot_save_pict[10])
 fig.add_subplot(rows, columns,9)
 plt.imshow( plot_pict[10] )
-
-
+"""
 
 
 
@@ -199,4 +227,5 @@ plt.imshow( plot_pict[10] )
 # print(save_pict[0])
 
 plt.show()
+
 
