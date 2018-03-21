@@ -53,7 +53,8 @@ def patterns_update( weights, patterns ):
 		for l in range( 0, len( weights )) :
 			for m in range( 0, len( weights )) :
 				result += weights[l][m] * save_pattern[ m // dim][ m % dim ]
-			patterns[i][ l // dim][ l % dim ] = sgn( result )
+			save_pattern[ l // dim][ l % dim ] = sgn( result ) #CHANGE THIS LINE TO HAVE GENERAL OR LITTLE PATTERN
+		patterns[i] = save_pattern
 	return patterns
 
 # To generate the next pattern from the weights
